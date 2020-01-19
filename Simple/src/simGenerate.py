@@ -18,3 +18,18 @@ def genCluster(c, R, n):
 		points[i] = point
 	
 	return points
+
+def genPoisson(n):
+	'''
+	generate uniform random point cloud
+	over [0,1]^2
+		n :: number of points
+	'''
+	points = np.empty([n,2])
+	for i in range(n):
+		point = np.array([
+			rd.uniform(0,1),
+			rd.uniform(0,1)])
+		points[i] = point
+
+	return points
