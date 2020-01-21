@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
+from scipy.cluster import hierarchy
 
 from graphviz import Graph
 import pygraphviz as pgv
 
+import matplotlib.ticker as mtick
 from matplotlib import rcParams
 rcParams['axes.linewidth'] = 2.5 # set the value globally
 rcParams['axes.edgecolor'] = 'grey'
@@ -120,9 +123,12 @@ def plotClustersGraph(labels, fname):
 
 	A.draw(fname)
 
-def plotElbowTest(data, K, unExVars, fname=None):
+
+def plotElbowTest(data, elbow_obj, fname=None):
 
 	plt.figure(figsize=(10,5))
+
+	k_vec = range(1,elbow_obj.maxclusters+1)
 
 	plt.subplot(1, 2, 1)
 	plt.scatter(data[:,0], data[:,1])
@@ -133,12 +139,88 @@ def plotElbowTest(data, K, unExVars, fname=None):
 	plt.yticks([], [])
 
 	plt.subplot(1, 2, 2)
-	plt.plot(K, unExVars)
-	plt.plot(K, unExVars, 'ro')
-	plt.xticks(K)
+	plt.plot(k_vec, elbow_obj.w_vec)
+	plt.plot(k_vec, elbow_obj.w_vec, 'ro')
+	plt.xticks(k_vec)
 	plt.yticks([])
 
 	if fname!=None:
+		plt.savefig(fname)
+
+	plt.show()
+
+
+def plotGapTest(data, gap_obj, fname=None):
+
+	plt.figure(figsize=(10,10))
+
+	k_vec = range(1,gap_obj.maxclusters+1)
+
+	# plot points:
+	plt.subplot(2, 2, 1)
+	plt.scatter(data[:,0], data[:,1])
+	plt.xlim(0,1)
+	plt.ylim(0,1)
+	plt.xticks([], [])
+	plt.yticks([], [])
+
+	# plot elbow:
+	plt.subplot(2, 2, 2)
+	plt.plot(k_vec, gap_obj.w_log_vec)
+	plt.plot(k_vec, gap_obj.w_log_vec, 'ro')
+	plt.xticks(k_vec)
+	plt.yticks([])
+
+	# plot comparison:
+	plt.subplot(2, 2, 3)
+	plt.plot(k_vec, gap_obj.w_log_vec)
+	plt.plot(k_vec, gap_obj.w_log_vec, 'ro')
+	plt.plot(k_vec, gap_obj.wnull_log_average_vec)
+	plt.plot(k_vec, gap_obj.wnull_log_average_vec, 'ro')
+	plt.xticks(k_vec)
+	plt.yticks([])
+
+	# plot gap curve:
+	plt.subplot(2, 2, 4)
+	plt.plot(k_vec, gap_obj.gap)
+	plt.plot(k_vec, gap_obj.gap, 'ro')
+	plt.xticks(k_vec)
+	plt.yticks([])
+
+	if fname is not None:
+		plt.savefig(fname)
+
+	plt.show()
+
+def plot_dendrogram(model, fname=None, **kwargs):
+	'''
+	Authors: Mathew Kallada, Andreas Mueller
+	License: BSD 3 clause
+	taken from: https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
+	'''
+	# Create linkage matrix and then plot the dendrogram
+
+	# create the counts of samples under each node
+	counts = np.zeros(model.children_.shape[0])
+	n_samples = len(model.labels_)
+	for i, merge in enumerate(model.children_):
+		current_count = 0
+		for child_idx in merge:
+			if child_idx < n_samples:
+				current_count += 1  # leaf node
+			else:
+				current_count += counts[child_idx - n_samples]
+		counts[i] = current_count
+
+	linkage_matrix = np.column_stack([model.children_, model.distances_,
+										counts]).astype(float)
+
+	# Plot the corresponding dendrogram
+	hierarchy.set_link_color_palette(['C1', 'C2', 'C3', 'C4'])
+	hierarchy.dendrogram(linkage_matrix, **kwargs, above_threshold_color='C0',)
+	plt.xticks([])
+
+	if fname is not None:
 		plt.savefig(fname)
 
 	plt.show()

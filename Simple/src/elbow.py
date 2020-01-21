@@ -9,6 +9,9 @@ import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 
 def main():
+
+	K = 10	# max number of clusers
+
 	# fix fake data parameters:
 	n1, n2, n3 = 30, 20, 15		# number of points in each cluster
 	R1, R2, R3 = 0.3, 0.1, 0.1	# max radius of each cluster
@@ -24,12 +27,12 @@ def main():
 	#X = sgt.genPoisson(n)	# uniform point cloud
 
 	# convert data to network:
-	DX = snt.getDistanceMatrix(X)
+	dist_mat = snt.getDistanceMatrix(X)
 
 	# perform elbow test:
-	K, fracVar = sst.elbowTest(DX, 10)
+	elbow_obj = sst.ElbowTest(K).fit(dist_mat)
+	spt.plotElbowTest(X, elbow_obj, fname='../media/elbow.png')
 
-	spt.plotElbowTest(X, K, fracVar, fname='../media/elbow3.png')
 
 if __name__ == '__main__':
 	main()
