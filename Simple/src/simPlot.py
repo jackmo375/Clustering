@@ -17,8 +17,7 @@ rcParams['xtick.color'] = 'grey'
 rcParams['ytick.color'] = 'grey'
 rcParams['lines.linewidth'] = 2.5
 
-
-def plotData(data, labels=None, fName=None, annotate=True):
+def plotData(data, labels=None, fname=None, annotate=False):
 	'''
 	Plots data set on fixed [0,1]^2 grid
 	'''
@@ -34,10 +33,10 @@ def plotData(data, labels=None, fName=None, annotate=True):
 	plt.yticks([], [])
 
 	# save figure:
-	if fName != None:
-		plt.savefig(fName)
+	if fname != None:
+		plt.savefig(fname)
 
-	#plt.show()
+	plt.show()
 
 def plotGraph(G):
 	'''
@@ -132,7 +131,6 @@ def plotElbowTest(data, elbow_obj, fname=None):
 
 	plt.subplot(1, 2, 1)
 	plt.scatter(data[:,0], data[:,1])
-
 	plt.xlim(0,1)
 	plt.ylim(0,1)
 	plt.xticks([], [])
@@ -192,34 +190,9 @@ def plotGapTest(data, gap_obj, fname=None):
 
 	plt.show()
 
-def plot_dendrogram(data, model, fname=None, **kwargs):
-	'''
-	Authors: Mathew Kallada, Andreas Mueller
-	License: BSD 3 clause
-	taken from: https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
-	'''
-	# Create linkage matrix and then plot the dendrogram
+def plotDendroTest(data, den_obj, fname=None):
 
-	# create the counts of samples under each node
-	counts = np.zeros(model.children_.shape[0])
-	n_samples = len(model.labels_)
-	for i, merge in enumerate(model.children_):
-		current_count = 0
-		for child_idx in merge:
-			if child_idx < n_samples:
-				current_count += 1  # leaf node
-			else:
-				current_count += counts[child_idx - n_samples]
-		counts[i] = current_count
-
-	linkage_matrix = np.column_stack([model.children_, model.distances_,
-										counts]).astype(float)
-
-	# Plot the corresponding dendrogram
-
-	#plt.figure(figsize=(10,5))
-	fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-
+	fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
 	# plot points:
 	axes[0].scatter(data[:,0], data[:,1])
@@ -228,13 +201,72 @@ def plot_dendrogram(data, model, fname=None, **kwargs):
 	axes[0].set_xticks([], [])
 	axes[0].set_yticks([], [])
 
+	# Plot the corresponding dendrogram
 	hierarchy.set_link_color_palette(['C1', 'C2', 'C3', 'C4'])
 	hierarchy.dendrogram(
-		linkage_matrix, 
-		**kwargs, 
+		den_obj.linkage_mat, 
+        truncate_mode='level', 
+        p=den_obj.maxclusters,
 		above_threshold_color='C0',
 		ax=axes[1])
 	axes[1].set_xticks([])
+
+	p    = den_obj.maxclusters+1
+	kvec = range(1,p)
+	distances = den_obj.linkage_mat[:,2]
+	axes[2].plot(kvec,distances[:-p:-1])
+	axes[2].plot(kvec,distances[:-p:-1], 'ro')
+	axes[2].set_xticks(kvec)
+
+
+	if fname is not None:
+		plt.savefig(fname)
+
+	plt.show()
+
+
+def plotJumpTest(data, jump_obj, fname=None):
+
+	fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+	hierarchy.set_link_color_palette(['C1', 'C2', 'C3', 'C4'])
+
+	# plot points:
+	axes[0,0].scatter(data[:,0], data[:,1])
+	axes[0,0].set_xlim(0,1)
+	axes[0,0].set_ylim(0,1)
+	axes[0,0].set_xticks([], [])
+	axes[0,0].set_yticks([], [])
+
+	kvec = range(1,jump_obj.maxclusters+1)
+	axes[0,1].plot(kvec,jump_obj.w_log_vec)
+	axes[0,1].plot(kvec,jump_obj.w_log_vec, 'ro')
+	axes[0,1].set_xticks(kvec)
+
+	hierarchy.dendrogram(
+		jump_obj.linkage_mat, 
+        truncate_mode='level', 
+        p=jump_obj.maxclusters,
+		above_threshold_color='C0',
+		ax=axes[0,2])
+	axes[0,2].set_xticks([])
+
+	axes[1,0].plot(kvec,jump_obj.w_log_vec)
+	axes[1,0].plot(kvec,jump_obj.w_log_vec, 'ro')
+	axes[1,0].plot(kvec,jump_obj.wnull_log_average_vec)
+	axes[1,0].plot(kvec,jump_obj.wnull_log_average_vec, 'ro')
+	axes[1,0].set_xticks(kvec)
+
+	axes[1,1].plot(kvec,jump_obj.gap)
+	axes[1,1].plot(kvec,jump_obj.gap, 'ro')
+	axes[1,1].set_xticks(kvec)
+
+	hierarchy.dendrogram(
+		jump_obj.null_linkage_mat, 
+        truncate_mode='level', 
+        p=jump_obj.maxclusters,
+		above_threshold_color='C0',
+		ax=axes[1,2])
+	axes[1,2].set_xticks([])
 
 	if fname is not None:
 		plt.savefig(fname)

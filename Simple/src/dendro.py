@@ -16,6 +16,7 @@ from sklearn.cluster import AgglomerativeClustering
 import simGenerate as sgt
 import simPlot as spt
 import simNetwork as snt
+import simStats as sst
 
 def main():
 
@@ -38,26 +39,18 @@ def main():
     data_mat = np.concatenate(
         (cluster_vec[0],cluster_vec[1],cluster_vec[2],cluster_vec[3]), 
         axis=0)
-    #data_mat = sgt.genPoisson(N)   # uniform point cloud
+    data_mat = sgt.genPoisson(N)   # uniform point cloud
 
     # convert data to network:
     dist_mat = snt.getDistanceMatrix(data_mat)
 
-    # perform the clustering:
-    ## setting distance_threshold=0 ensures we compute the full tree.
-    model = AgglomerativeClustering(
-        linkage='average',
-        affinity='precomputed',
-        distance_threshold=0, 
-        n_clusters=None).fit(dist_mat)
+    den_obj = sst.DendroTest(K).fit(dist_mat)
 
-    # plot the top three levels of the dendrogram
-    spt.plot_dendrogram(
+    # plot the top p levels of the dendrogram
+    spt.plotDendroTest(
         data_mat,
-        model, 
-        truncate_mode='level', 
-        p=10, 
-        fname='../media/dendro1.png')
+        den_obj, 
+        fname='../media/dendro3.png')
 
 
 if __name__ == '__main__':
