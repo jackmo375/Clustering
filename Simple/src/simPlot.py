@@ -192,7 +192,7 @@ def plotGapTest(data, gap_obj, fname=None):
 
 	plt.show()
 
-def plot_dendrogram(model, fname=None, **kwargs):
+def plot_dendrogram(data, model, fname=None, **kwargs):
 	'''
 	Authors: Mathew Kallada, Andreas Mueller
 	License: BSD 3 clause
@@ -216,9 +216,25 @@ def plot_dendrogram(model, fname=None, **kwargs):
 										counts]).astype(float)
 
 	# Plot the corresponding dendrogram
+
+	#plt.figure(figsize=(10,5))
+	fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+
+	# plot points:
+	axes[0].scatter(data[:,0], data[:,1])
+	axes[0].set_xlim(0,1)
+	axes[0].set_ylim(0,1)
+	axes[0].set_xticks([], [])
+	axes[0].set_yticks([], [])
+
 	hierarchy.set_link_color_palette(['C1', 'C2', 'C3', 'C4'])
-	hierarchy.dendrogram(linkage_matrix, **kwargs, above_threshold_color='C0',)
-	plt.xticks([])
+	hierarchy.dendrogram(
+		linkage_matrix, 
+		**kwargs, 
+		above_threshold_color='C0',
+		ax=axes[1])
+	axes[1].set_xticks([])
 
 	if fname is not None:
 		plt.savefig(fname)
