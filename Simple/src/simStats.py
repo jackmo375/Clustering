@@ -115,13 +115,13 @@ class JumpTest:
 		self.wnull_log_average_vec = np.empty([maxclusters])
 
 	# class members:
-	def fit(self, dist_mat):
+	def fit(self, dist_mat, linkageMethod='average'):
 
 		npoints = len(dist_mat[:,0])
 
 		# compute data dendrogram:
 		model = AgglomerativeClustering(
-			linkage='average',
+			linkage=linkageMethod,
 			affinity='precomputed',
 			distance_threshold=0, 
 			n_clusters=None).fit(dist_mat)
