@@ -17,15 +17,31 @@ rcParams['xtick.color'] = 'grey'
 rcParams['ytick.color'] = 'grey'
 rcParams['lines.linewidth'] = 2.5
 
-def plotData(data, labels=None, fname=None, annotate=False):
+def plotData(
+	data, 
+	labels=None, 
+	fname=None, 
+	annotate=False, 
+	show=True,
+	pointSize=None):
 	'''
 	Plots data set on fixed [0,1]^2 grid
 	'''
-	plt.scatter(data[:,0], data[:,1], c=labels)
+	plt.scatter(
+		data[:,0], 
+		data[:,1], 
+		edgecolors='r', 
+		s=pointSize,
+		facecolors='none')
 
 	if annotate==True:
 		for i in range(len(data)):
-			plt.annotate(f" {i}", (data[i,0], data[i,1])) 
+			plt.annotate(
+				f"{i}", 
+				(data[i,0]+0.02, data[i,1]+0.02),
+				 color='grey',
+				 weight='bold',
+				 size=15) 
 
 	plt.xlim(0,1)
 	plt.ylim(0,1)
@@ -33,10 +49,11 @@ def plotData(data, labels=None, fname=None, annotate=False):
 	plt.yticks([], [])
 
 	# save figure:
-	if fname != None:
+	if fname is not None:
 		plt.savefig(fname)
 
-	plt.show()
+	if show is True:
+		plt.show()
 
 def plotGraph(G):
 	'''
@@ -78,7 +95,7 @@ def plotPointsGraph(data):
 	A.draw(dataDir+label+'.gv')
 
 
-def plotClustersGraph(labels, fname):
+def plotClustersGraph(labels, fname=None):
 	'''
 	Plots a set of clusters in graph form
 		+ clusterLabels is output from 
@@ -272,3 +289,16 @@ def plotJumpTest(data, jump_obj, fname=None):
 		plt.savefig(fname)
 
 	plt.show()
+
+
+def plotClustersAndGraph(data, labels, ffolder, flabel):
+
+
+	plotData(
+		data,
+		annotate=True,
+		fname=ffolder+flabel+'1.png',
+		show=False,
+		pointSize=400)
+
+	plotClustersGraph(labels, fname=ffolder+flabel+'2.png')

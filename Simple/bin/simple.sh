@@ -1,26 +1,13 @@
 #!/bin/bash
 
-wk='/home/jack/Local/Learning/DataAnalysis/Clustering/Simple/'
-source=${wk}'src/'
-data=${wk}'data/'
-media=${wk}'media/'
+. ./config.sh
 
-python ${source}simple.py
+label=$1
 
-label='simple'
-graphFile=${data}${label}'.gv'
-if [[ -f ${graphFile} ]]; then
-	circo -Tpng ${data}${label}.gv -o ${media}${label}.png
-fi
+python ${source}simple.py $label
 
-label='points'
-graphFile=${data}${label}'.gv'
-if [[ -f ${graphFile} ]]; then
-	circo -Tpng ${data}${label}.gv -o ${media}${label}.png
-fi
+convert -border 160x160 -bordercolor "#FFFFFF" ${media}${label}'2.png' ${media}${label}'2.png'
 
-label='clusters'
-graphFile=${data}${label}'.gv'
-if [[ -f ${graphFile} ]]; then
-	circo -Tpng ${data}${label}.gv -o ${media}${label}.png
-fi
+convert ${media}${label}'1.png' ${media}${label}'2.png' +append ${media}${label}'.png'
+
+rm ${media}${label}'1.png' ${media}${label}'2.png'

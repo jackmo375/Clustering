@@ -4,6 +4,7 @@ from genGenerate import NUCL_VEC
 # import enviroment modules:
 import matplotlib.pyplot as plt 
 from scipy.cluster import hierarchy
+import networkx as nx
 
 import matplotlib.ticker as mtick
 from matplotlib import rcParams
@@ -18,19 +19,24 @@ rcParams['lines.linewidth'] = 2.5
 rcParams['axes.labelsize'] = 'xx-large'
 rcParams['axes.labelcolor'] = 'grey'
 
-def plotRawPanGenome(panGenome, fname=None):
+def plotRawPanGenome(panGenome, fname=None, show=True):
 
 	fig, ax = plt.subplots()
 
 	createDataPlot(panGenome, fig, ax)
 
+	n_genomes = len(panGenome[:,0])
+
+	ax.set_yticks(range(n_genomes))
 	ax.set_xlabel('nucleotides')
 	ax.set_ylabel('genomes')
+	plt.tight_layout()
 
 	if fname is not None:
 		plt.savefig(fname)
 
-	plt.show()
+	if show is True:
+		plt.show()
 
 def createDataPlot(panGenome, fig, ax):
 
@@ -68,8 +74,8 @@ def plotJumpTest(data, jump_obj, fname=None):
 
 	hierarchy.dendrogram(
 		jump_obj.linkage_mat, 
-        truncate_mode='level', 
-        p=jump_obj.maxclusters,
+        truncate_mode='none', 
+        #p=jump_obj.maxclusters,
 		above_threshold_color='C0',
 		ax=axes[0,2])
 	axes[0,2].set_xticks([])
@@ -91,8 +97,8 @@ def plotJumpTest(data, jump_obj, fname=None):
 
 	hierarchy.dendrogram(
 		jump_obj.null_linkage_mat, 
-        truncate_mode='level', 
-        p=jump_obj.maxclusters,
+        truncate_mode='none', 
+        #p=jump_obj.maxclusters,
 		above_threshold_color='C0',
 		ax=axes[1,2])
 	axes[1,2].set_xticks([])
@@ -102,3 +108,47 @@ def plotJumpTest(data, jump_obj, fname=None):
 		plt.savefig(fname)
 
 	plt.show()
+
+def plotClustersGraph(labels, fname=None):
+	'''
+	Plots a set of clusters in graph form
+		+ clusterLabels is output from 
+			Agglomerative clutering object
+	'''
+
+	# get number of clusters:
+	nClusters = max(labels) + 1
+	nPoints   = len(labels)
+
+	# construct graph:
+	G = nx.Graph()
+	# add points:
+	G.add_nodes_from(range(nPoints))
+	# add clusters: 
+	G.add_nodes_from(range(nClusters)) 
+		# cluster ids are nPoints,...,Npoints + nClusters - 1
+
+	# re-index the points according to their clusters:
+	subGraphNodes = []
+	for i in range(nClusters):
+		subGraphNodes = subGraphNodes + [[]]
+	for i in range(nPoints):
+		j = labels[i]
+		subGraphNodes[j] = subGraphNodes[j] + [i]
+	# join the points to their cluster nodes:
+	for i in range(nClusters):
+		for node in subGraphNodes[i]:
+			G.add_edge(nPoints+i, node)
+
+	# print it:
+	A = nx.nx_agraph.to_agraph(G)
+	for i in range(nPoints,nPoints+nClusters):
+		A.get_node(i).attr['style'] = 'filled'
+		A.get_node(i).attr['fillcolor']="#C62E3A"
+		A.get_node(i).attr['label'] = ''
+
+	A.node_attr['shape']='circle'
+	A.layout() # default to neato
+	A.layout(prog='circo') # use circo
+
+	A.draw(fname)
