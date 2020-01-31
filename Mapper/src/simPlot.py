@@ -265,6 +265,7 @@ def plotJumpTest(data, jump_obj, fname=None):
 	axes[0,1].plot(kvec,jump_obj.w_log_vec, 'ro')
 	axes[0,1].set_xticks(kvec)
 
+	# plot dendrogram:
 	hierarchy.dendrogram(
 		jump_obj.linkage_mat, 
         truncate_mode='level', 
@@ -283,6 +284,7 @@ def plotJumpTest(data, jump_obj, fname=None):
 	axes[1,1].plot(kvec,jump_obj.gap, 'ro')
 	axes[1,1].set_xticks(kvec)
 
+	# plot random dendrogram
 	hierarchy.dendrogram(
 		jump_obj.null_linkage_mat, 
         truncate_mode='level', 
@@ -298,7 +300,6 @@ def plotJumpTest(data, jump_obj, fname=None):
 
 
 def plotClustersAndGraph(data, labels, ffolder, flabel):
-
 
 	plotData(
 		data,

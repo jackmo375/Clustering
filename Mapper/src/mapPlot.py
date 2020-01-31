@@ -1,6 +1,8 @@
 # Modules
 ## enviroment:
 import matplotlib.pyplot as plt
+import networkx as nx
+
 from matplotlib import rcParams
 rcParams['axes.linewidth'] = 2.5 # set the value globally
 rcParams['axes.edgecolor'] = 'grey'
@@ -86,6 +88,29 @@ def plotPointsFilterHist(data, filter, fname=None, show=True):
 	if show is True:
 		plt.show()
 
+
+def plotGraph(G, fname, colorAtt=None):
+
+	# print it:
+	A = nx.nx_agraph.to_agraph(G)
+
+	n_nodes = G.number_of_nodes()
+
+	for i in range(n_nodes):
+		A.get_node(i).attr['style'] = 'filled'
+		if colorAtt is not None:
+			print(G.nodes[i][colorAtt])
+			A.get_node(i).attr['fillcolor']="#C62E3A"
+		else:
+			A.get_node(i).attr['fillcolor']="#C62E3A"
+
+		A.get_node(i).attr['label'] = ''
+	
+	A.node_attr['shape']='circle'
+	A.layout() # default to neato
+	A.layout(prog='circo') # use circo
+
+	A.draw(fname)
 
 
 def _plotPointsAndHist(data, D, axPoints, axHist, labels=None):

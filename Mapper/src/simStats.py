@@ -117,7 +117,8 @@ class JumpTest:
 	# class members:
 	def fit(self, dist_mat, linkageMethod='average'):
 
-		npoints = len(dist_mat[:,0])
+		n_points = len(dist_mat[:,0])
+		print(n_points)
 
 		# compute data dendrogram:
 		model = AgglomerativeClustering(
@@ -134,9 +135,9 @@ class JumpTest:
 		# generate realisations:
 		wnull_log_mat = np.empty([self.maxclusters,self.nreals])
 		for b in range(self.nreals):
-			distnull_mat = snt.getDistanceMatrix(sgt.genPoisson(npoints))
+			distnull_mat = snt.getDistanceMatrix(sgt.genPoisson(n_points))
 			model = AgglomerativeClustering(
-				linkage='average',
+				linkage=linkageMethod,
 				affinity='precomputed',
 				distance_threshold=0, 
 				n_clusters=None).fit(distnull_mat)
