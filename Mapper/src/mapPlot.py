@@ -1,6 +1,8 @@
 # Modules
 ## enviroment:
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm 	# for color maps
+import matplotlib.colors as co
 import networkx as nx
 
 from matplotlib import rcParams
@@ -95,17 +97,33 @@ def plotGraph(G, fname, colorAtt=None):
 	A = nx.nx_agraph.to_agraph(G)
 
 	n_nodes = G.number_of_nodes()
+	n_edges = G.number_of_edges()
+
+	if colorAtt is not None:
+		# get node attribute vaues as a list:
+		nodeValues = []
+		for i in range(n_nodes):
+			nodeValues = nodeValues + [G.nodes[i][colorAtt]]
+		# convert node attribute values into colors:
+		nodeColors = cm.plasma(plt.Normalize(min(nodeValues),max(nodeValues))(nodeValues))
+		# convert rgb into hex:
+		for i in range(n_nodes):
+			print(co.rgb2hex(nodeColors[i,0:3]))
+		print(nodeColors)
+
+	# get hex color for matplotlib 'grey'
+	greyHex = co.to_hex('grey')
 
 	for i in range(n_nodes):
-		A.get_node(i).attr['style'] = 'filled'
+		A.get_node(i).attr['style'] = 'filled,setlinewidth(0)'
 		if colorAtt is not None:
-			print(G.nodes[i][colorAtt])
-			A.get_node(i).attr['fillcolor']="#C62E3A"
+			A.get_node(i).attr['fillcolor']=co.rgb2hex(nodeColors[i,0:3])
 		else:
 			A.get_node(i).attr['fillcolor']="#C62E3A"
 
 		A.get_node(i).attr['label'] = ''
-	
+
+	A.edge_attr['linecolor']=greyHex	
 	A.node_attr['shape']='circle'
 	A.layout() # default to neato
 	A.layout(prog='circo') # use circo
