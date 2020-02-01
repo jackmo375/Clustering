@@ -106,10 +106,11 @@ def plotGraph(G, fname, colorAtt=None):
 			nodeValues = nodeValues + [G.nodes[i][colorAtt]]
 		# convert node attribute values into colors:
 		nodeColors = cm.plasma(plt.Normalize(min(nodeValues),max(nodeValues))(nodeValues))
-		# convert rgb into hex:
-		for i in range(n_nodes):
-			print(co.rgb2hex(nodeColors[i,0:3]))
-		print(nodeColors)
+			# a more faithful way to do this would be to use the range
+			# of the filter applied to the whole data set to normalise
+			# the values, i.e. f_min and f_max, rather than the max and
+			# min node values. The difference gets worse for fewer nodes
+			# summarising the information from more data points. 
 
 	# get hex color for matplotlib 'grey'
 	greyHex = co.to_hex('grey')
